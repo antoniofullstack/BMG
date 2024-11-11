@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
   Card,
@@ -13,7 +13,7 @@ import Link from "next/link";
 
 const InvestmentsPage: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = useParams();
   const { user } = useAuth();
   const [investments, setInvestments] = React.useState<any[]>([]);
 

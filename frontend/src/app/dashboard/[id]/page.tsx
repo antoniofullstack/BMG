@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const PortfolioDetailPage: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = useParams();
   const { user } = useAuth();
   const [portfolio, setPortfolio] = React.useState<any>(null);
 

@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const CreateInvestmentPage: React.FC = () => {
   const router = useRouter();
-  const { id } = router.params;
+  const { id } = useParams();
   const { user } = useAuth();
   const [investmentName, setInvestmentName] = useState("");
   const [investmentAmount, setInvestmentAmount] = useState("");
