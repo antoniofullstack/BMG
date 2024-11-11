@@ -10,6 +10,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import Link from "next/link";
+import api from "@/api/api";
 
 const InvestmentsPage: React.FC = () => {
   const router = useRouter();
@@ -19,10 +20,8 @@ const InvestmentsPage: React.FC = () => {
 
   React.useEffect(() => {
     if (id) {
-      // Fetch investments from the API
       const fetchInvestments = async () => {
-        const response = await fetch(`/api/portfolios/${id}/investments`);
-        const data = await response.json();
+        const data = await api.getInvestments();
         setInvestments(data);
       };
 

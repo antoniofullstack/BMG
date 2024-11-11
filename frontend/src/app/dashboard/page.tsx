@@ -9,6 +9,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import api from "@/api/api";
 
 interface Portfolio {
   id: string;
@@ -20,10 +21,8 @@ const DashboardPage: React.FC = () => {
   const [portfolios, setPortfolios] = React.useState<Portfolio[]>([]);
 
   React.useEffect(() => {
-    // Fetch portfolios from the API
     const fetchPortfolios = async () => {
-      const response = await fetch("/api/portfolios");
-      const data = await response.json();
+      const data = await api.getPortfolios();
       setPortfolios(data);
     };
 

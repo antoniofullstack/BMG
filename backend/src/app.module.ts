@@ -10,14 +10,14 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), // Carrega as variáveis de ambiente
+    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
-      type: 'postgres', // ou outro banco de dados que você está usando
+      type: 'postgres',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      username: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // Não use em produção
     }),
