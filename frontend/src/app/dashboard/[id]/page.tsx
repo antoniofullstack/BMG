@@ -1,8 +1,8 @@
-// src/app/dashboard/[id]/page.tsx
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+"use client";
+import React from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const PortfolioDetailPage: React.FC = () => {
   const router = useRouter();
@@ -32,7 +32,7 @@ const PortfolioDetailPage: React.FC = () => {
       </CardHeader>
       <CardContent>
         {/* Render portfolio details */}
-        <p>Investments: {portfolio.investments.join(', ')}</p>
+        <p>Investments: {portfolio.investments.join(", ")}</p>
       </CardContent>
     </Card>
   );

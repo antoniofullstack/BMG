@@ -1,23 +1,23 @@
-'use client';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const CreateInvestmentPage: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id } = router.params;
   const { user } = useAuth();
-  const [investmentName, setInvestmentName] = useState('');
-  const [investmentAmount, setInvestmentAmount] = useState('');
+  const [investmentName, setInvestmentName] = useState("");
+  const [investmentAmount, setInvestmentAmount] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const response = await fetch(`/api/portfolios/${id}/investments`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ name: investmentName, amount: investmentAmount }),
     });

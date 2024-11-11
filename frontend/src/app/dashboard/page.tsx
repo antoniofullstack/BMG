@@ -1,14 +1,14 @@
-// src/app/dashboard/page.tsx
-import React from 'react';
-import { useAuth } from '@/context/AuthContext';
-import Link from 'next/link';
+"use client";
+import React from "react";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 
 interface Portfolio {
   id: string;
@@ -22,7 +22,7 @@ const DashboardPage: React.FC = () => {
   React.useEffect(() => {
     // Fetch portfolios from the API
     const fetchPortfolios = async () => {
-      const response = await fetch('/api/portfolios');
+      const response = await fetch("/api/portfolios");
       const data = await response.json();
       setPortfolios(data);
     };
@@ -31,7 +31,7 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   return (
-    <div className='space-y-4'>
+    <div className="space-y-4">
       {portfolios.map((portfolio) => (
         <Card key={portfolio.id}>
           <CardHeader>
@@ -47,7 +47,7 @@ const DashboardPage: React.FC = () => {
           </CardFooter>
         </Card>
       ))}
-      <Link href='/dashboard/create'>Create New Portfolio</Link>
+      <Link href="/dashboard/create">Create New Portfolio</Link>
     </div>
   );
 };
