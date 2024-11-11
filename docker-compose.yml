@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "3001:3000" # Mapeia a porta 3000 do container para a 3001 do host
+      - "3001:3001" # Mapeia a porta 3000 do container para a 3001 do host
     environment:
       DB_HOST: postgres
       DB_PORT: 5432

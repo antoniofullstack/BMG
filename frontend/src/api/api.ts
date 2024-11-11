@@ -1,9 +1,9 @@
-import { Investment } from '@/interfaces/Investment';
-import { Portfolio } from '@/interfaces/Portfolio';
-import { User } from '@/interfaces/User';
-import axios from 'axios';
+import { Investment } from "@/interfaces/Investment";
+import { Portfolio } from "@/interfaces/Portfolio";
+import { User } from "@/interfaces/User";
+import axios from "axios";
 
-const API_URL = 'http://localhost:3000';
+const API_URL = "http://localhost:3001";
 
 const api = {
   // Users
@@ -43,7 +43,7 @@ const api = {
 
   logout: async () => {
     // Se você estiver usando um token, você pode apenas limpar o token do armazenamento local
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     return true; // Retorna true para indicar que o logout foi bem-sucedido
   },
 
