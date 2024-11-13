@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (name: string, email: string, password: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -25,41 +26,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async (): Promise<void> => {
-    try {
+    const checkAuth = async () => {
       const token = localStorage.getItem("token");
       if (token) {
-        const userData: User = await api.getUser(token); // Aqui você deve ter um método no api.js para obter os dados do usuário
-        setUser(userData);
+        try {
+          // Busca o perfil do usuário usando o token
+          const userData = await api.getProfileFromToken(token);
+          // Verifica se o token é válido
+          if (userData) {
+            setUser(userData);
+            router.push("/dashboard");
+          } else {
+            logout();
+          }
+        } catch (error) {
+          console.error("Auth check failed:", error);
+          logout(); // Logout em caso de erro
+        }
       } else {
-        logout();
+        setLoading(false);
+        router.push("/auth/login");
       }
-    } catch (error) {
-      console.error("Auth check failed:", error);
-    } finally {
       setLoading(false);
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const login = async (email: string, password: string) => {
+    try {
+      const data = await api.login(email, password);
+
+      // Armazenar o token no localStorage
+      localStorage.setItem("token", data.access_token);
+
+      // Buscar dados do usuário
+      const userData = await api.getProfileFromToken(data.access_token);
+      setUser(userData);
+
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
     }
   };
 
-  const login = async (email: string, password: string): Promise<void> => {
-    const data = await api.login(email, password);
-    localStorage.setItem("token", data.access_token);
-    console.log(data.user);
-    setUser(data.user);
-    router.push("/dashboard");
-  };
-
-  const logout = (): void => {
+  const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
     router.push("/auth/login");
   };
 
+  const register = async (name: string, email: string, password: string) => {
+    const data = await api.register(name, email, password);
+    localStorage.setItem("token", data.access_token);
+    setUser(data.user);
+    router.push("/dashboard");
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, register, loading }}>
       {children}
     </AuthContext.Provider>
   );

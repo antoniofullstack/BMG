@@ -1,15 +1,15 @@
-"use client";
-import React from "react";
-import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-} from "@/components/ui/card";
-import api from "@/api/api";
+} from '@/components/ui/card';
+import api from '@/api/api';
 
 interface Portfolio {
   id: string;
@@ -18,12 +18,15 @@ interface Portfolio {
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const [portfolios, setPortfolios] = React.useState<Portfolio[]>([]);
+  const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
     const fetchPortfolios = async () => {
-      const data = await api.getPortfolios();
-      setPortfolios(data);
+      if (token !== null) {
+        const data = await api.getPortfolios(token);
+        setPortfolios(data);
+      }
     };
 
     fetchPortfolios();

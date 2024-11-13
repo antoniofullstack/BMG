@@ -1,21 +1,20 @@
-'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import './globals.css';
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import "./globals.css";
 
 export default function Home() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     if (!loading) {
-      if (user) {
-        // Usuário está logado, redireciona para o dashboard
-        router.push('/dashboard');
+      if (user || token) {
+        router.push("/dashboard");
       } else {
-        // Usuário não está logado, redireciona para a página de login
-        router.push('/auth/login');
+        router.push("/auth/login");
       }
     }
   }, [user, loading, router]);
