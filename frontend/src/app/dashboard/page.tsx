@@ -11,16 +11,19 @@ import {
 } from "@/components/ui/card";
 import api from "@/api/api";
 import { Portfolio } from "@/interfaces/Portfolio";
+import { Button } from "@/components/ui/button";
+import PortfolioModal from "@/components/PortfolioModal";
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const fetchPortfolios = async () => {
       if (token !== null) {
-        const data = await api.getPortfolios(token);
+        const data = await api.getPortfolios(user?.id, token);
         setPortfolios(data);
       }
     };
@@ -29,7 +32,11 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="container mx-auto py-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <Button variant="default" onClick={() => setIsModalOpen(true)}>
+        Criar Novo Portfolio
+      </Button>
+
       {portfolios.map((portfolio) => (
         <Card
           key={portfolio.id}
@@ -44,21 +51,25 @@ const DashboardPage: React.FC = () => {
             </p>
             <Link
               href={`/dashboard/${portfolio.id}`}
-              className="text-blue-600 hover:text-blue-800 transition-colors duration-200 truncate"
+              className="text-blue-600 transition-colors duration-200 truncate"
             >
-              View Portfolio
+              Ver Portfolio
             </Link>
           </CardContent>
           <CardFooter>
             <Link
               href={`/dashboard/${portfolio.id}/investments`}
-              className="text-blue-600 hover:text-blue-800 transition-colors duration-200 truncate"
+              className="text-blue-600 transition-colors duration-200 truncate"
             >
-              Manage Investments
+              Gerenciar Investimentos
             </Link>
           </CardFooter>
         </Card>
       ))}
+      <PortfolioModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

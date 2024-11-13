@@ -17,8 +17,8 @@ export class PortfoliosService {
     return this.portfoliosRepository.save(portfolio);
   }
 
-  async findAll(): Promise<Portfolio[]> {
-    return this.portfoliosRepository.find();
+  async findAll(id: string): Promise<Portfolio[]> {
+    return this.portfoliosRepository.find({ where: { user: { id: id } } });
   }
 
   async findOne(id: string): Promise<Portfolio> {

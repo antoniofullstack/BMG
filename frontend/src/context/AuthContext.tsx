@@ -79,9 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     const data = await api.register(name, email, password);
-    localStorage.setItem("token", data.access_token);
-    setUser(data.user);
-    router.push("/dashboard");
+    if (data) {
+      router.push("/auth/login");
+    }
   };
 
   return (

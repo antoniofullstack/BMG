@@ -69,9 +69,9 @@ const api = {
     );
     return data;
   },
-  getPortfolios: async (token: string) => {
+  getPortfolios: async (id: string | undefined, token: string) => {
     const { data } = await axios.get(
-      `${API_BASE_URL}/portfolios`,
+      `${API_BASE_URL}/portfolios/${id}`,
       AuthorizationHeader(token)
     );
     return data;

@@ -14,8 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import api from "@/api/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterForm() {
+  const { register } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -47,14 +49,7 @@ export default function RegisterForm() {
     }
 
     try {
-      const response = await api.register(name, email, password);
-
-      if (!response.ok) {
-        throw new Error("Registration failed");
-      }
-
-      // Redirect to login page after successful registration
-      router.push("/auth/login");
+      await register(name, email, password);
     } catch (err) {
       setError("Failed to create account");
     } finally {

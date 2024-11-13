@@ -26,9 +26,9 @@ export class PortfoliosController {
     return this.portfoliosService.create(createPortfolioDto);
   }
 
-  @Get()
-  async findAll(): Promise<Portfolio[]> {
-    return this.portfoliosService.findAll();
+  @Get(':id')
+  async findAll(@Param('id') id: string): Promise<Portfolio[]> {
+    return this.portfoliosService.findAll(id);
   }
 
   @Get(':id')
