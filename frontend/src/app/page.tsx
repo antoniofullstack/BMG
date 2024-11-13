@@ -19,5 +19,5 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  return null; // Ou você pode retornar um carregando enquanto a verificação acontece
+  return null;
 }
