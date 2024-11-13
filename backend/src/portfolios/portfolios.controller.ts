@@ -6,13 +6,16 @@ import {
   Param,
   Put,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PortfoliosService } from './portfolios.service';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 import { Portfolio } from './portfolios.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('portfolios')
+@UseGuards(JwtAuthGuard)
 export class PortfoliosController {
   constructor(private readonly portfoliosService: PortfoliosService) {}
 

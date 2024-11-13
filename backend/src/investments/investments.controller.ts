@@ -6,13 +6,16 @@ import {
   Param,
   Put,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
 import { UpdateInvestmentDto } from './dto/update-investment.dto';
 import { Investment } from './investment.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('investments')
+@UseGuards(JwtAuthGuard)
 export class InvestmentsController {
   constructor(private readonly investmentsService: InvestmentsService) {}
 
