@@ -45,8 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string): Promise<void> => {
-    const data = await api.login(email, password); // Usando a API para login
-    localStorage.setItem("token", data.token);
+    const data = await api.login(email, password);
+    localStorage.setItem("token", data.access_token);
+    console.log(data.user);
     setUser(data.user);
     router.push("/dashboard");
   };

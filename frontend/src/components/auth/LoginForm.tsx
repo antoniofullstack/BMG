@@ -16,10 +16,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import api from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
 
-const { login } = useAuth();
-
 export default function LoginForm() {
-  const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
