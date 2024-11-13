@@ -1,26 +1,14 @@
-'use client';
+"use client";
 import {
   createContext,
   useContext,
   useState,
   useEffect,
   ReactNode,
-} from 'react';
-import { useRouter } from 'next/navigation';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  // Adicione outras propriedades conforme necessário
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  loading: boolean;
-}
+} from "react";
+import { useRouter } from "next/navigation";
+import { User } from "@/interfaces/User";
+import api from "@/api/api";
 
 interface AuthContextType {
   user: User | null;
@@ -42,51 +30,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async (): Promise<void> => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const userData: User = await response.json();
-          setUser(userData);
-        } else {
-          logout();
-        }
+        const userData: User = await api.getUser(token); // Aqui você deve ter um método no api.js para obter os dados do usuário
+        setUser(userData);
+      } else {
+        logout();
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const login = async (email: string, password: string): Promise<void> => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Login failed');
-    }
-
-    const data = await response.json();
-    localStorage.setItem('token', data.token);
+    const data = await api.login(email, password); // Usando a API para login
+    localStorage.setItem("token", data.token);
     setUser(data.user);
-    router.push('/dashboard');
+    router.push("/dashboard");
   };
 
   const logout = (): void => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setUser(null);
-    router.push('/auth/login');
+    router.push("/auth/login");
   };
 
   return (
@@ -99,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

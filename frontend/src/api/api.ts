@@ -15,6 +15,10 @@ const api = {
     const response = await axios.get(`${API_URL}/users`);
     return response.data;
   },
+  getUser: async (id: string) => {
+    const response = await axios.get(`${API_URL}/users/${id}`);
+    return response.data;
+  },
   updateUser: async (id: string, user: User) => {
     const response = await axios.put(`${API_URL}/users/${id}`, user);
     return response.data;
