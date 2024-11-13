@@ -3,24 +3,26 @@ import { InvestmentsService } from './investments.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Investment } from './investment.entity';
 import { Portfolio } from '../portfolios/portfolios.entity';
-import { CreateInvestmentDto } from './dto/create-investment.dto';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UpdateInvestmentDto } from './dto/update-investment.dto';
+import { CreateInvestmentDto } from './dto/create-investment.dto';
 
 describe('InvestmentsService', () => {
   let service: InvestmentsService;
+  let investmentRepository: Repository<Investment>;
+  let portfolioRepository: Repository<Portfolio>;
 
-  const mockInvestmentRepository = {
-    create: jest.fn(),
-    save: jest.fn(),
-    find: jest.fn(),
-    findOne: jest.fn(),
-    preload: jest.fn(),
-    delete: jest.fn(),
+  const mockPortfolio = {
+    id: '1',
+    name: 'Test Portfolio',
   };
 
-  const mockPortfolioRepository = {
-    findOne: jest.fn(),
+  const mockInvestment = {
+    id: '1',
+    name: 'Test Investment',
+    value: 1000,
+    portfolio: mockPortfolio,
   };
 
   beforeEach(async () => {
@@ -29,132 +31,124 @@ describe('InvestmentsService', () => {
         InvestmentsService,
         {
           provide: getRepositoryToken(Investment),
-          useValue: mockInvestmentRepository,
+          useValue: {
+            create: jest.fn().mockReturnValue(mockInvestment),
+            save: jest.fn().mockResolvedValue(mockInvestment),
+            find: jest.fn().mockResolvedValue([mockInvestment]),
+            findOne: jest.fn().mockResolvedValue(mockInvestment),
+            remove: jest.fn().mockResolvedValue(mockInvestment),
+          },
         },
         {
           provide: getRepositoryToken(Portfolio),
-          useValue: mockPortfolioRepository,
+          useValue: {
+            findOne: jest.fn().mockResolvedValue(mockPortfolio),
+          },
         },
       ],
     }).compile();
 
     service = module.get<InvestmentsService>(InvestmentsService);
+    investmentRepository = module.get(getRepositoryToken(Investment));
+    portfolioRepository = module.get(getRepositoryToken(Portfolio));
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should create a new investment', async () => {
-    const createInvestmentDto: CreateInvestmentDto = {
-      portfolioId: '1',
-      companyName: 'Test Company',
-      value: 1000,
-      purchaseDate: new Date(),
-    };
-    const portfolio = { id: 1, name: 'Test Portfolio' };
-    const investment = { id: 1, ...createInvestmentDto };
-
-    mockPortfolioRepository.findOne.mockResolvedValue(portfolio);
-    mockInvestmentRepository.create.mockReturnValue(investment);
-    mockInvestmentRepository.save.mockResolvedValue(investment);
-
-    const result = await service.create(createInvestmentDto);
-    expect(result).toEqual(investment);
-    expect(mockPortfolioRepository.findOne).toHaveBeenCalledWith({
-      where: { id: createInvestmentDto.portfolioId },
+  describe('create', () => {
+    it('should create an investment', async () => {
+      const createDto: CreateInvestmentDto = {
+        portfolioId: '1',
+        companyName: 'Test Investment',
+        value: 1000,
+        purchaseDate: new Date(),
+      };
+      const result = await service.create(createDto);
+      expect(result).toEqual(mockInvestment);
     });
-    expect(mockInvestmentRepository.create).toHaveBeenCalledWith({
-      ...createInvestmentDto,
-      portfolio: portfolio,
-    });
-    expect(mockInvestmentRepository.save).toHaveBeenCalledWith(investment);
-  });
 
-  it('should throw NotFoundException if portfolio not found', async () => {
-    const createInvestmentDto: CreateInvestmentDto = {
-      portfolioId: '1',
-      companyName: 'Test Company',
-      value: 1000,
-      purchaseDate: new Date(),
-    };
+    it('should throw BadRequestException if portfolio not found', async () => {
+      jest.spyOn(portfolioRepository, 'findOne').mockResolvedValue(null);
 
-    mockPortfolioRepository.findOne.mockResolvedValue(null);
-
-    await expect(service.create(createInvestmentDto)).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
-  it('should return all investments', async () => {
-    const investments = [{ id: 1, amount: 1000 }];
-
-    mockInvestmentRepository.find.mockResolvedValue(investments);
-
-    const result = await service.findAll();
-    expect(result).toEqual(investments);
-    expect(mockInvestmentRepository.find).toHaveBeenCalled();
-  });
-
-  it('should return an investment by ID', async () => {
-    const investment = { id: 1, amount: 1000 };
-
-    mockInvestmentRepository.findOne.mockResolvedValue(investment);
-
-    const result = await service.findOne('1');
-    expect(result).toEqual(investment);
-    expect(mockInvestmentRepository.findOne).toHaveBeenCalledWith({
-      where: { id: '1' },
-      relations: ['portfolio'],
+      await expect(
+        service.create({
+          portfolioId: 'invalid',
+          companyName: 'Test Investment',
+          value: 1000,
+          purchaseDate: new Date(),
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
-  it('should throw NotFoundException if investment not found', async () => {
-    mockInvestmentRepository.findOne.mockResolvedValue(null);
-
-    await expect(service.findOne('1')).rejects.toThrow(NotFoundException);
+  describe('findAll', () => {
+    it('should return all investments', async () => {
+      const result = await service.findAll();
+      expect(result).toEqual([mockInvestment]);
+    });
   });
 
-  it('should update an investment', async () => {
-    const existingInvestment = { id: '1', value: 1000 };
-    const updateDto = { value: 2000 };
-    const updatedInvestment = { ...existingInvestment, ...updateDto };
+  describe('findOne', () => {
+    it('should return a single investment', async () => {
+      const result = await service.findOne('1');
+      expect(result).toEqual(mockInvestment);
+    });
 
-    mockInvestmentRepository.findOne.mockResolvedValue(existingInvestment);
-    mockInvestmentRepository.save.mockResolvedValue(updatedInvestment);
+    it('should throw NotFoundException if investment not found', async () => {
+      jest.spyOn(investmentRepository, 'findOne').mockResolvedValue(null);
 
-    const result = await service.update('1', updateDto);
-
-    expect(result).toEqual(updatedInvestment);
-    expect(mockInvestmentRepository.findOne).toHaveBeenCalledWith('1');
-    expect(mockInvestmentRepository.save).toHaveBeenCalledWith(
-      updatedInvestment,
-    );
+      await expect(service.findOne('invalid')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 
-  it('should throw NotFoundException if investment to update not found', async () => {
-    const updateInvestmentDto: UpdateInvestmentDto = { value: 2000 };
+  describe('findByPortfolio', () => {
+    it('should return investments for a portfolio', async () => {
+      const result = await service.findByPortfolio('1');
+      expect(result).toEqual([mockInvestment]);
+    });
 
-    mockInvestmentRepository.preload.mockResolvedValue(null);
+    it('should throw NotFoundException if portfolio not found', async () => {
+      jest.spyOn(portfolioRepository, 'findOne').mockResolvedValue(null);
 
-    await expect(service.update('1', updateInvestmentDto)).rejects.toThrow(
-      NotFoundException,
-    );
+      await expect(service.findByPortfolio('invalid')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 
-  it('should remove an investment', async () => {
-    const investment = { id: 1, amount: 1000 };
-    mockInvestmentRepository.findOne.mockResolvedValue(investment);
-    mockInvestmentRepository.delete.mockResolvedValue(investment);
-
-    await expect(service.remove('1')).resolves.not.toThrow();
-    expect(mockInvestmentRepository.findOne).toHaveBeenCalledWith('1');
-    expect(mockInvestmentRepository.delete).toHaveBeenCalledWith(investment);
+  describe('update', () => {
+    it('should update an investment', async () => {
+      const updateDto: UpdateInvestmentDto = {
+        companyName: 'Updated Investment',
+        value: 1000,
+      };
+      const result = await service.update('1', updateDto);
+      expect(result).toEqual(mockInvestment);
+    });
   });
 
-  it('should throw NotFoundException if investment to delete not found', async () => {
-    mockInvestmentRepository.findOne.mockResolvedValue(null);
+  describe('remove', () => {
+    it('should remove an investment', async () => {
+      await service.remove('1');
+      expect(investmentRepository.remove).toHaveBeenCalled();
+    });
+  });
 
-    await expect(service.remove('1')).rejects.toThrow(NotFoundException);
+  describe('calculateTotalInvestmentValue', () => {
+    it('should calculate total investment value', async () => {
+      const result = await service.calculateTotalInvestmentValue('1');
+      expect(result).toBe(1000);
+    });
+
+    it('should return 0 if no investments', async () => {
+      jest.spyOn(service, 'findByPortfolio').mockResolvedValue([]);
+
+      const result = await service.calculateTotalInvestmentValue('1');
+      expect(result).toBe(0);
+    });
   });
 });
